@@ -20,7 +20,7 @@ function generateDate() {
 bot.start(ctx => {
   let requestUrl = `${keys.URL}${generateDate()}`;
   const extra = Extra.markup(
-    Markup.inlineKeyboard([Markup.urlButton('На сайт ↗️', requestUrl)])
+    Markup.inlineKeyboard([Markup.callbackButton('Еще', 'MORE')])
   );
   axios.get(requestUrl).then(html => {
     let $ = cheerio.load(html.data);
@@ -32,7 +32,7 @@ bot.start(ctx => {
       .text()
       .trim();
 
-    extra.caption = `<b>${title}</b>\n\n${caption}`;
+    extra.caption = `<b>${title}</b>\n\n${caption}\n<a href="${requestUrl}">На сайт</a>`;
     extra.parse_mode = 'HTML';
 
     ctx.replyWithPhoto(img, extra);

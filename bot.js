@@ -23,11 +23,9 @@ bot.action('MORE', ctx => {
         level: 'error',
         message: `CHAT: ${ctx.from.id}, USERNAME: ${ctx.from.username}, NAME: ${
           ctx.from.first_name
-        } ${ctx.from.last_name}, MESSAGE_ID: ${
-          ctx.message.message_id
-        }, MESSAGE: ${ctx.message.text}, TG_DATE: ${
-          ctx.message.date
-        }, ERROR_MESSAGE: ${err.message}`
+        } ${ctx.from.last_name}, TG_DATE: ${ctx.message.date}, ERROR_MESSAGE: ${
+          err.message
+        }`
       });
     } else if (result.length > 0) {
       img = result[0];
@@ -72,11 +70,9 @@ bot.action('MORE', ctx => {
             level: 'error',
             message: `CHAT: ${ctx.from.id}, USERNAME: ${
               ctx.from.username
-            }, NAME: ${ctx.from.first_name} ${
-              ctx.from.last_name
-            }, MESSAGE_ID: ${ctx.message.message_id}, MESSAGE: ${
-              ctx.message.text
-            }, TG_DATE: ${ctx.message.date}, ERROR_MESSAGE: ${err.message}`
+            }, NAME: ${ctx.from.first_name} ${ctx.from.last_name}, TG_DATE: ${
+              ctx.message.date
+            }, ERROR_MESSAGE: ${err.message}`
           });
 
           ctx.reply('❌ Произошла ошибка, попробуй еще раз!');

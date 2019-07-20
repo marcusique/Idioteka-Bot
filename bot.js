@@ -12,8 +12,6 @@ const Telegraf = require('telegraf'),
   errorLogger = require('./middleware/errorLogger'),
   bot = new Telegraf(keys.telegramBotToken);
 
-multi = redis.multi();
-
 bot.action('MORE', ctx => {
   let date = generateDate();
 
@@ -31,7 +29,6 @@ bot.action('MORE', ctx => {
           ctx.message.date
         }, ERROR_MESSAGE: ${err.message}`
       });
-
     } else if (result.length > 0) {
       img = result[0];
       title = result[1];
@@ -44,12 +41,11 @@ bot.action('MORE', ctx => {
       extra.parse_mode = 'HTML';
 
       ctx.replyWithPhoto(img, extra);
-      
     } else {
       let toCache = [];
       let requestUrl = `${keys.URL}${date}`;
       const extra = Extra.markup(
-        Markup.inlineKeyboard([Markup.callbackButton('Еще', 'MORE')])
+        Markup.inlineKeyboard([Markup.callbackButton('Еще! 🚀', 'MORE')])
       );
 
       axios
@@ -91,9 +87,15 @@ bot.action('MORE', ctx => {
 
 bot.start(ctx => {
   const extra = Extra.markup(
-    Markup.inlineKeyboard([Markup.callbackButton('Еще', 'MORE')])
+    Markup.inlineKeyboard([Markup.callbackButton('Начнем! 🚀', 'MORE')])
   );
-  ctx.reply('Начнем, пожалуй!', extra);
+  extra.parse_mode = 'HTML';
+  extra.webPreview(false);
+
+  ctx.reply(
+    'Привет! Я присылаю рандомные публикации из <a href="https://www.artlebedev.ru/kovodstvo/idioteka/">Идиотеки</a> Студии Артемия Лебедева. Поехали!',
+    extra
+  );
 
   infoLogger.log({
     level: 'info',
@@ -106,7 +108,13 @@ bot.start(ctx => {
 });
 
 bot.help(ctx => {
-  ctx.reply();
+  const extra = Extra.markup(
+    Markup.inlineKeyboard([Markup.callbackButton('Начнем! 🚀', 'MORE')])
+  );
+  ctx.reply(
+    'Я присылаю рандомные публикации из Идиотеки. Просто жми кнопку "Еще 🚀" и я буду присылать тебе публикации 👍🏻',
+    extra
+  );
 });
 
 function generateDate() {

@@ -9,8 +9,6 @@ const Telegraf = require('telegraf'),
   random = new Random(),
   dateFormat = require('dateformat'),
   keys = require('./config/keys'),
-  infoLogger = require('./middleware/infoLogger'),
-  errorLogger = require('./middleware/errorLogger'),
   bot = new Telegraf(keys.telegramBotToken);
 
 bot.use(session());
@@ -20,16 +18,7 @@ bot.action('MORE', ctx => {
 
   redis.lrange(date, 0, -1, (err, result) => {
     if (err) {
-      errorLogger.log({
-        level: 'error',
-        message: `CHAT: ${ctx.from.id}, USERNAME: ${ctx.from.username}, NAME: ${
-          ctx.from.first_name
-        } ${ctx.from.last_name}, MESSAGE_ID: ${
-          ctx.message.message_id
-        }, MESSAGE: ${ctx.message.text}, TG_DATE: ${
-          ctx.message.date
-        }, ERROR_MESSAGE: ${err.message}`
-      });
+      console.log(err);
     } else if (result.length > 0) {
       img = result[0];
       title = result[1];
@@ -69,28 +58,10 @@ bot.action('MORE', ctx => {
           ctx.replyWithPhoto(img, extra);
         })
         .catch(err => {
+          console.log(err);
           ctx.reply('❌ Произошла ошибка, попробуй еще раз!');
-
-          errorLogger.log({
-            level: 'error',
-            message: `CHAT: ${ctx.from.id}, USERNAME: ${
-              ctx.from.username
-            }, NAME: ${ctx.from.first_name} ${
-              ctx.from.last_name
-            }, MESSAGE_ID: ${ctx.message.message_id}, MESSAGE: ${
-              ctx.message.text
-            }, TG_DATE: ${ctx.message.date}, ERROR_MESSAGE: ${err.message}`
-          });
         });
     }
-  });
-  infoLogger.log({
-    level: 'info',
-    message: `CHAT: ${ctx.from.id}, USERNAME: ${ctx.from.username}, NAME: ${
-      ctx.from.first_name
-    } ${ctx.from.last_name}, MESSAGE_ID: ${ctx.message.message_id}, MESSAGE: ${
-      ctx.message.text
-    }, TG_DATE: ${ctx.message.date}`
   });
 });
 
@@ -105,15 +76,6 @@ bot.start(ctx => {
     'Привет! Я присылаю рандомные публикации из <a href="https://www.artlebedev.ru/kovodstvo/idioteka/">Идиотеки</a> Студии Артемия Лебедева. Поехали!',
     extra
   );
-
-  infoLogger.log({
-    level: 'info',
-    message: `CHAT: ${ctx.from.id}, USERNAME: ${ctx.from.username}, NAME: ${
-      ctx.from.first_name
-    } ${ctx.from.last_name}, MESSAGE_ID: ${ctx.message.message_id}, MESSAGE: ${
-      ctx.message.text
-    }, TG_DATE: ${ctx.message.date}`
-  });
 });
 
 bot.help(ctx => {
@@ -124,15 +86,6 @@ bot.help(ctx => {
     'Я присылаю рандомные публикации из Идиотеки. Просто жми кнопку "Еще 🚀" и я буду присылать тебе публикации 👍🏻',
     extra
   );
-
-  infoLogger.log({
-    level: 'info',
-    message: `CHAT: ${ctx.from.id}, USERNAME: ${ctx.from.username}, NAME: ${
-      ctx.from.first_name
-    } ${ctx.from.last_name}, MESSAGE_ID: ${ctx.message.message_id}, MESSAGE: ${
-      ctx.message.text
-    }, TG_DATE: ${ctx.message.date}`
-  });
 });
 
 function generateDate() {

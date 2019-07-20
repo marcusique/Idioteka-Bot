@@ -4,6 +4,7 @@ const Telegraf = require('telegraf'),
   axios = require('axios'),
   cheerio = require('cheerio'),
   redis = require('./middleware/redis'),
+  session = require('telegraf/session'),
   { Random } = require('random-js'),
   random = new Random(),
   dateFormat = require('dateformat'),
@@ -11,6 +12,8 @@ const Telegraf = require('telegraf'),
   infoLogger = require('./middleware/infoLogger'),
   errorLogger = require('./middleware/errorLogger'),
   bot = new Telegraf(keys.telegramBotToken);
+
+bot.use(session());
 
 bot.action('MORE', ctx => {
   let date = generateDate();

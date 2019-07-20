@@ -8,6 +8,8 @@ const Telegraf = require('telegraf'),
   random = new Random(),
   dateFormat = require('dateformat'),
   keys = require('./config/keys'),
+  infoLogger = require('./middleware/infoLogger'),
+  errorLogger = require('./middleware/errorLogger'),
   bot = new Telegraf(keys.telegramBotToken);
 
 bot.action('MORE', ctx => {

@@ -9,16 +9,30 @@ const Telegraf = require('telegraf'),
   random = new Random(),
   dateFormat = require('dateformat'),
   keys = require('./config/keys'),
+  infoLogger = require('./middleware/infoLogger'),
+  errorLogger = require('./middleware/errorLogger'),
   bot = new Telegraf(keys.telegramBotToken);
 
 bot.use(session());
 
 bot.action('MORE', ctx => {
+  infoLogger.log({
+    level: 'info',
+    message: `CHAT: ${ctx.from.id}, USERNAME: ${ctx.from.username}, NAME: ${
+      ctx.from.first_name
+    } ${ctx.from.last_name}`
+  });
+
   let date = generateDate();
 
   redis.lrange(date, 0, -1, (err, result) => {
     if (err) {
-      console.log(err);
+      errorLogger.log({
+        level: 'error',
+        message: `CHAT: ${ctx.from.id}, USERNAME: ${ctx.from.username}, NAME: ${
+          ctx.from.first_name
+        } ${ctx.from.last_name}`
+      });
     } else if (result.length > 0) {
       img = result[0];
       title = result[1];
@@ -58,7 +72,13 @@ bot.action('MORE', ctx => {
           ctx.replyWithPhoto(img, extra);
         })
         .catch(err => {
-          console.log(err);
+          errorLogger.log({
+            level: 'error',
+            message: `CHAT: ${ctx.from.id}, USERNAME: ${
+              ctx.from.username
+            }, NAME: ${ctx.from.first_name} ${ctx.from.last_name}`
+          });
+
           ctx.reply('❌ Произошла ошибка, попробуй еще раз!');
         });
     }
@@ -66,6 +86,13 @@ bot.action('MORE', ctx => {
 });
 
 bot.start(ctx => {
+  infoLogger.log({
+    level: 'info',
+    message: `CHAT: ${ctx.from.id}, USERNAME: ${ctx.from.username}, NAME: ${
+      ctx.from.first_name
+    } ${ctx.from.last_name}, MESSAGE: ${ctx.message.text}`
+  });
+
   const extra = Extra.markup(
     Markup.inlineKeyboard([Markup.callbackButton('Начнем! 🚀', 'MORE')])
   );
@@ -73,12 +100,21 @@ bot.start(ctx => {
   extra.webPreview(false);
 
   ctx.reply(
-    'Привет! Я присылаю рандомные публикации из <a href="https://www.artlebedev.ru/kovodstvo/idioteka/">Идиотеки</a> Студии Артемия Лебедева. Поехали!',
+    `Привет! Я присылаю случайные публикации из <a href="https://www.artlebedev.ru/kovodstvo/idioteka/">Идиотеки</a>.
+Для справки нажми /help.
+    `,
     extra
   );
 });
 
 bot.help(ctx => {
+  infoLogger.log({
+    level: 'info',
+    message: `CHAT: ${ctx.from.id}, USERNAME: ${ctx.from.username}, NAME: ${
+      ctx.from.first_name
+    } ${ctx.from.last_name}, MESSAGE: ${ctx.message.text}`
+  });
+
   const extra = Extra.markup(
     Markup.inlineKeyboard([Markup.callbackButton('Начнем! 🚀', 'MORE')])
   );

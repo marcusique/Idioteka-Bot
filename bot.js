@@ -2,6 +2,11 @@ const Telegraf = require('telegraf'),
   Markup = require('telegraf/markup'),
   Extra = require('telegraf/extra'),
   axios = require('axios'),
+  rateLimit = require('telegraf-ratelimit'),
+  limitConfig = {
+    window: 3000,
+    limit: 1
+  },
   cheerio = require('cheerio'),
   redis = require('./middleware/redis'),
   session = require('telegraf/session'),
@@ -12,6 +17,7 @@ const Telegraf = require('telegraf'),
   bot = new Telegraf(keys.telegramBotToken);
 
 bot.use(session());
+bot.use(rateLimit(limitConfig));
 
 bot.action('MORE', ctx => {
   let date = functions.generateDate();
@@ -26,7 +32,7 @@ bot.action('MORE', ctx => {
         } ${ctx.from.last_name}, ERROR_MSG: ${err.message}`
       });
 
-      ctx.reply('❌ Произошла ошибка, попробуй еще раз!');
+      return ctx.reply('❌ Произошла ошибка, попробуй еще раз!');
       //cached result found, serving
     } else if (result.length > 0) {
       img = result[0];
@@ -35,12 +41,12 @@ bot.action('MORE', ctx => {
       requestUrl = result[3];
 
       const extra = Extra.markup(
-        Markup.inlineKeyboard([Markup.callbackButton('Еще', 'MORE')])
+        Markup.inlineKeyboard([Markup.callbackButton('Еще 🚀', 'MORE')])
       );
-      extra.caption = `<a href="${requestUrl}">${title}</a>\n\n${caption}`;
+      extra.caption = `${title}\n\n${caption}\n\n<a href="${requestUrl}">На сайт ↗️</a>`;
       extra.parse_mode = 'HTML';
 
-      ctx.replyWithPhoto(img, extra);
+      return ctx.replyWithPhoto(img, extra);
       //cached result not found, requesting
     } else {
       let toCache = [];
@@ -65,10 +71,10 @@ bot.action('MORE', ctx => {
           toCache.push(img, title, caption, requestUrl);
           redis.rpush.apply(redis, [`${date}`].concat(toCache));
 
-          extra.caption = `<a href="${requestUrl}">${title}</a>\n\n${caption}`;
+          extra.caption = `${title}\n\n${caption}\n\n<a href="${requestUrl}">На сайт ↗️</a>`;
           extra.parse_mode = 'HTML';
 
-          ctx.replyWithPhoto(img, extra);
+          return ctx.replyWithPhoto(img, extra);
         })
         .catch(err => {
           errorLogger.log({
@@ -80,7 +86,7 @@ bot.action('MORE', ctx => {
             }`
           });
 
-          ctx.reply('❌ Произошла ошибка, попробуй еще раз!');
+          return ctx.reply('❌ Произошла ошибка, попробуй еще раз!');
         });
     }
   });
@@ -129,6 +135,8 @@ bot.help(ctx => {
 Работает в одном режиме – генерации случайной ссылки и получения публикации напрямую с веб-страницы. Скорость получения информации с сайта не зависит от бота и при высоких нагрузках на сайт Идиотеки время получения публикации может увеличиваться.
 
 Бот поддерживает кэширование и все публикации, которые проходят через него, добавляются в кэш. Таким образом, скорость каждой последующей загрузки публикации увеличивается.
+
+⚠️ Количество запросов ограничено одним в каждые три секунды.
      `,
     extra
   );
@@ -138,6 +146,11 @@ bot.help(ctx => {
       ctx.from.first_name
     } ${ctx.from.last_name}, MESSAGE: ${ctx.message.text}`
   });
+});
+
+bot.catch(err => {
+  console.log(err.message);
+  ctx.reply('❌ Произошла ошибка, попробуй еще раз!');
 });
 
 bot.launch();

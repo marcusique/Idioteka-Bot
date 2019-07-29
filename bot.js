@@ -34,7 +34,8 @@ bot.action('MORE', ctx => {
 
       return ctx.reply('❌ Произошла ошибка, попробуй еще раз!');
       //cached result found, serving
-    } else if (result.length > 0) {
+    }
+    if (result.length > 0) {
       img = result[0];
       title = result[1];
       caption = result[2];
@@ -43,7 +44,7 @@ bot.action('MORE', ctx => {
       const extra = Extra.markup(
         Markup.inlineKeyboard([Markup.callbackButton('Еще 🚀', 'MORE')])
       );
-      extra.caption = `${title}\n\n${caption}\n\n<a href="${requestUrl}">На сайт ↗️</a>`;
+      extra.caption = `<b>${title}</b>\n\n${caption}\n\n<a href="${requestUrl}">На сайт ↗️</a>`;
       extra.parse_mode = 'HTML';
 
       return ctx.replyWithPhoto(img, extra);
@@ -71,7 +72,7 @@ bot.action('MORE', ctx => {
           toCache.push(img, title, caption, requestUrl);
           redis.rpush.apply(redis, [`${date}`].concat(toCache));
 
-          extra.caption = `${title}\n\n${caption}\n\n<a href="${requestUrl}">На сайт ↗️</a>`;
+          extra.caption = `<b>${title}</b>\n\n${caption}\n\n<a href="${requestUrl}">На сайт ↗️</a>`;
           extra.parse_mode = 'HTML';
 
           return ctx.replyWithPhoto(img, extra);

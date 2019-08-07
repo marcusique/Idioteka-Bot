@@ -11,7 +11,6 @@ const Telegraf = require('telegraf'),
   redis = require('./middleware/redis'),
   session = require('telegraf/session'),
   keys = require('./config/keys'),
-  infoLogger = require('./middleware/infoLogger'),
   errorLogger = require('./middleware/errorLogger'),
   functions = require('./functions'),
   bot = new Telegraf(keys.telegramBotToken);
@@ -91,12 +90,6 @@ bot.action('MORE', ctx => {
         });
     }
   });
-  infoLogger.log({
-    level: 'info',
-    message: `CHAT: ${ctx.from.id}, USERNAME: ${ctx.from.username}, NAME: ${
-      ctx.from.first_name
-    } ${ctx.from.last_name}`
-  });
 });
 
 bot.start(ctx => {
@@ -112,13 +105,6 @@ bot.start(ctx => {
     `,
     extra
   );
-
-  infoLogger.log({
-    level: 'info',
-    message: `CHAT: ${ctx.from.id}, USERNAME: ${ctx.from.username}, NAME: ${
-      ctx.from.first_name
-    } ${ctx.from.last_name}, MESSAGE: ${ctx.message.text}`
-  });
 });
 
 bot.help(ctx => {
@@ -131,7 +117,7 @@ bot.help(ctx => {
   ctx.reply(
     `<b>Справка</b>
 
-@idioteka_bot предназначен для получения случайных публикаций из <a href="https://www.artlebedev.ru/kovodstvo/idioteka/">Идиотеки</a> Студии Артемия Лебедева.
+@idioteka_bot предназначен для получения случайных публикаций из <a href="https://www.artlebedev.ru/kovodstvo/idioteka/">Идиотеки</a>.
 
 Работает в одном режиме – генерации случайной ссылки и получения публикации напрямую с веб-страницы. Скорость получения информации с сайта не зависит от бота и при высоких нагрузках на сайт Идиотеки время получения публикации может увеличиваться.
 
@@ -141,12 +127,6 @@ bot.help(ctx => {
      `,
     extra
   );
-  infoLogger.log({
-    level: 'info',
-    message: `CHAT: ${ctx.from.id}, USERNAME: ${ctx.from.username}, NAME: ${
-      ctx.from.first_name
-    } ${ctx.from.last_name}, MESSAGE: ${ctx.message.text}`
-  });
 });
 
 bot.catch(err => {

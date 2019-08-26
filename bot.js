@@ -3,32 +3,32 @@ const Telegraf = require('telegraf'),
   Extra = require('telegraf/extra'),
   axios = require('axios'),
   rateLimit = require('telegraf-ratelimit'),
-  limitConfig = {
-    window: 3000,
-    limit: 1
-  },
   cheerio = require('cheerio'),
   redis = require('./middleware/redis'),
   session = require('telegraf/session'),
   keys = require('./config/keys'),
   errorLogger = require('./middleware/errorLogger'),
-  functions = require('./functions'),
-  bot = new Telegraf(keys.telegramBotToken);
+  { Random } = require('random-js'),
+  random = new Random(),
+  dateFormat = require('dateformat'),
+  bot = new Telegraf(keys.telegramBotToken),
+  limitConfig = {
+    window: 3000,
+    limit: 1
+  };
 
 bot.use(session());
 bot.use(rateLimit(limitConfig));
 
 bot.action('MORE', ctx => {
-  let date = functions.generateDate();
+  let date = generateDate();
 
   //check redis cache
   redis.lrange(date, 0, -1, (err, result) => {
     if (err) {
       errorLogger.log({
         level: 'error',
-        message: `CHAT: ${ctx.from.id}, USERNAME: ${ctx.from.username}, NAME: ${
-          ctx.from.first_name
-        } ${ctx.from.last_name}, ERROR_MSG: ${err.message}`
+        message: `CHAT: ${ctx.from.id}, USERNAME: ${ctx.from.username}, NAME: ${ctx.from.first_name} ${ctx.from.last_name}, ERROR_MSG: ${err.message}`
       });
 
       return ctx.reply('❌ Произошла ошибка, попробуй еще раз!');
@@ -46,7 +46,7 @@ bot.action('MORE', ctx => {
       extra.caption = `<b>${title}</b>\n\n${caption}\n\n<a href="${requestUrl}">На сайт ↗️</a>`;
       extra.parse_mode = 'HTML';
 
-      return ctx.replyWithPhoto(img, extra);
+      done(ctx.chat.id, img, extra);
       //cached result not found, requesting
     } else {
       let toCache = [];
@@ -74,16 +74,12 @@ bot.action('MORE', ctx => {
           extra.caption = `<b>${title}</b>\n\n${caption}\n\n<a href="${requestUrl}">На сайт ↗️</a>`;
           extra.parse_mode = 'HTML';
 
-          return ctx.replyWithPhoto(img, extra);
+          done(ctx.chat.id, img, extra);
         })
         .catch(err => {
           errorLogger.log({
             level: 'error',
-            message: `CHAT: ${ctx.from.id}, USERNAME: ${
-              ctx.from.username
-            }, NAME: ${ctx.from.first_name} ${ctx.from.last_name}, ERROR_MSG: ${
-              err.message
-            }`
+            message: `CHAT: ${ctx.from.id}, USERNAME: ${ctx.from.username}, NAME: ${ctx.from.first_name} ${ctx.from.last_name}, ERROR_MSG: ${err.message}`
           });
 
           return ctx.reply('❌ Произошла ошибка, попробуй еще раз!');
@@ -133,5 +129,17 @@ bot.catch(err => {
   console.log(err.message);
   ctx.reply('❌ Произошла ошибка, попробуй еще раз!');
 });
+
+function generateDate() {
+  let start = new Date(2006, 10, 1);
+  let end = new Date();
+  let date = random.date(start, end);
+  let newdate = dateFormat(date, 'yyyy/mm/dd');
+  return newdate;
+}
+
+function done(chatId, img, extra) {
+  bot.telegram.sendPhoto(chatId, img, extra);
+}
 
 bot.launch();

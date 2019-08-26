@@ -46,7 +46,7 @@ bot.action('MORE', ctx => {
       extra.caption = `<b>${title}</b>\n\n${caption}\n\n<a href="${requestUrl}">На сайт ↗️</a>`;
       extra.parse_mode = 'HTML';
 
-      done(ctx.chat.id, img, extra);
+      return done(ctx.chat.id, img, extra);
       //cached result not found, requesting
     } else {
       let toCache = [];
@@ -74,7 +74,7 @@ bot.action('MORE', ctx => {
           extra.caption = `<b>${title}</b>\n\n${caption}\n\n<a href="${requestUrl}">На сайт ↗️</a>`;
           extra.parse_mode = 'HTML';
 
-          done(ctx.chat.id, img, extra);
+          return done(ctx.chat.id, img, extra);
         })
         .catch(err => {
           errorLogger.log({
@@ -139,7 +139,7 @@ function generateDate() {
 }
 
 function done(chatId, img, extra) {
-  bot.telegram.sendPhoto(chatId, img, extra);
+  return bot.telegram.sendPhoto(chatId, img, extra);
 }
 
 bot.launch();

@@ -13,7 +13,6 @@ const Telegraf = require('telegraf'),
   redis = require('./middleware/redis'),
   session = require('telegraf/session'),
   keys = require('./config/keys'),
-  errorLogger = require('./middleware/errorLogger'),
   lib = require('./middleware/lib'),
   bot = new Telegraf(keys.telegramBotToken);
 

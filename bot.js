@@ -2,6 +2,8 @@ const Telegraf = require('telegraf'),
   Markup = require('telegraf/markup'),
   Extra = require('telegraf/extra'),
   axios = require('axios'),
+  infoLogger = require('./middleware/infoLogger'),
+  errorLogger = require('./middleware/errorLogger'),
   rateLimit = require('telegraf-ratelimit'),
   limitConfig = {
     window: 3000,

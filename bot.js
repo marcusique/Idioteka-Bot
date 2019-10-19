@@ -13,14 +13,14 @@ const Telegraf = require('telegraf'),
   keys = require('./config/keys'),
   infoLogger = require('./middleware/infoLogger'),
   errorLogger = require('./middleware/errorLogger'),
-  functions = require('./functions'),
+  lib = require('./middleware/lib'),
   bot = new Telegraf(keys.telegramBotToken);
 
 bot.use(session());
 bot.use(rateLimit(limitConfig));
 
 bot.action('MORE', ctx => {
-  let date = functions.generateDate();
+  let date = lib.generateDate();
 
   //check redis cache
   redis.lrange(date, 0, -1, (err, result) => {
@@ -29,7 +29,11 @@ bot.action('MORE', ctx => {
         level: 'error',
         message: `CHAT: ${ctx.from.id}, USERNAME: ${ctx.from.username}, NAME: ${
           ctx.from.first_name
-        } ${ctx.from.last_name}, ERROR_MSG: ${err.message}`
+        } ${ctx.from.last_name}, DATE: ${lib.returnDate(
+          ctx.message.date
+        )}, ERROR_MSG: ${err.message} DATE: ${lib.returnDate(
+          ctx.update.callback_query.message.date
+        )}`
       });
 
       return ctx.reply('❌ Произошла ошибка, попробуй еще раз!');
@@ -84,7 +88,7 @@ bot.action('MORE', ctx => {
               ctx.from.username
             }, NAME: ${ctx.from.first_name} ${ctx.from.last_name}, ERROR_MSG: ${
               err.message
-            }`
+            } DATE: ${lib.returnDate(ctx.update.callback_query.message.date)}`
           });
 
           return ctx.reply('❌ Произошла ошибка, попробуй еще раз!');
@@ -95,7 +99,9 @@ bot.action('MORE', ctx => {
     level: 'info',
     message: `CHAT: ${ctx.from.id}, USERNAME: ${ctx.from.username}, NAME: ${
       ctx.from.first_name
-    } ${ctx.from.last_name}`
+    } ${ctx.from.last_name} DATE: ${lib.returnDate(
+      ctx.update.callback_query.message.date
+    )}`
   });
 });
 
@@ -117,7 +123,9 @@ bot.start(ctx => {
     level: 'info',
     message: `CHAT: ${ctx.from.id}, USERNAME: ${ctx.from.username}, NAME: ${
       ctx.from.first_name
-    } ${ctx.from.last_name}, MESSAGE: ${ctx.message.text}`
+    } ${ctx.from.last_name}, MESSAGE: ${
+      ctx.message.text
+    }, DATE: ${lib.returnDate(ctx.message.date)}`
   });
 });
 
@@ -145,7 +153,9 @@ bot.help(ctx => {
     level: 'info',
     message: `CHAT: ${ctx.from.id}, USERNAME: ${ctx.from.username}, NAME: ${
       ctx.from.first_name
-    } ${ctx.from.last_name}, MESSAGE: ${ctx.message.text}`
+    } ${ctx.from.last_name}, MESSAGE: ${
+      ctx.message.text
+    }, DATE: ${lib.returnDate(ctx.message.date)}`
   });
 });
 

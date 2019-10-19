@@ -9,5 +9,8 @@ module.exports = {
     let date = random.date(start, end);
     let newdate = dateFormat(date, 'yyyy/mm/dd');
     return newdate;
+  },
+  returnDate(unixTimestamp) {
+    return new Date(unixTimestamp * 1000);
   }
 };

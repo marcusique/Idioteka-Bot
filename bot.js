@@ -3,6 +3,10 @@ const Telegraf = require('telegraf'),
   Extra = require('telegraf/extra'),
   axios = require('axios'),
   rateLimit = require('telegraf-ratelimit'),
+  limitConfig = {
+    window: 3000,
+    limit: 1
+  },
   cheerio = require('cheerio'),
   redis = require('./middleware/redis'),
   session = require('telegraf/session'),

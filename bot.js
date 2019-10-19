@@ -3,15 +3,10 @@ const Telegraf = require('telegraf'),
   Extra = require('telegraf/extra'),
   axios = require('axios'),
   rateLimit = require('telegraf-ratelimit'),
-  limitConfig = {
-    window: 3000,
-    limit: 1
-  },
   cheerio = require('cheerio'),
   redis = require('./middleware/redis'),
   session = require('telegraf/session'),
   keys = require('./config/keys'),
-  infoLogger = require('./middleware/infoLogger'),
   errorLogger = require('./middleware/errorLogger'),
   lib = require('./middleware/lib'),
   bot = new Telegraf(keys.telegramBotToken);
@@ -51,7 +46,7 @@ bot.action('MORE', ctx => {
       extra.caption = `<b>${title}</b>\n\n${caption}\n\n<a href="${requestUrl}">На сайт ↗️</a>`;
       extra.parse_mode = 'HTML';
 
-      return ctx.replyWithPhoto(img, extra);
+      return done(ctx.chat.id, img, extra);
       //cached result not found, requesting
     } else {
       let toCache = [];
@@ -79,7 +74,7 @@ bot.action('MORE', ctx => {
           extra.caption = `<b>${title}</b>\n\n${caption}\n\n<a href="${requestUrl}">На сайт ↗️</a>`;
           extra.parse_mode = 'HTML';
 
-          return ctx.replyWithPhoto(img, extra);
+          return done(ctx.chat.id, img, extra);
         })
         .catch(err => {
           errorLogger.log({
@@ -90,7 +85,6 @@ bot.action('MORE', ctx => {
               err.message
             } DATE: ${lib.returnDate(ctx.update.callback_query.message.date)}`
           });
-
           return ctx.reply('❌ Произошла ошибка, попробуй еще раз!');
         });
     }
@@ -139,7 +133,7 @@ bot.help(ctx => {
   ctx.reply(
     `<b>Справка</b>
 
-@idioteka_bot предназначен для получения случайных публикаций из <a href="https://www.artlebedev.ru/kovodstvo/idioteka/">Идиотеки</a> Студии Артемия Лебедева.
+@idioteka_bot предназначен для получения случайных публикаций из <a href="https://www.artlebedev.ru/kovodstvo/idioteka/">Идиотеки</a>.
 
 Работает в одном режиме – генерации случайной ссылки и получения публикации напрямую с веб-страницы. Скорость получения информации с сайта не зависит от бота и при высоких нагрузках на сайт Идиотеки время получения публикации может увеличиваться.
 
@@ -163,5 +157,17 @@ bot.catch(err => {
   console.log(err.message);
   ctx.reply('❌ Произошла ошибка, попробуй еще раз!');
 });
+
+function generateDate() {
+  let start = new Date(2006, 10, 1);
+  let end = new Date();
+  let date = random.date(start, end);
+  let newdate = dateFormat(date, 'yyyy/mm/dd');
+  return newdate;
+}
+
+function done(chatId, img, extra) {
+  return bot.telegram.sendPhoto(chatId, img, extra);
+}
 
 bot.launch();

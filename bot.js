@@ -163,14 +163,6 @@ bot.catch(err => {
   ctx.reply('❌ Произошла ошибка, попробуй еще раз!');
 });
 
-function generateDate() {
-  let start = new Date(2006, 10, 1);
-  let end = new Date();
-  let date = random.date(start, end);
-  let newdate = dateFormat(date, 'yyyy/mm/dd');
-  return newdate;
-}
-
 function done(chatId, img, extra) {
   return bot.telegram.sendPhoto(chatId, img, extra);
 }

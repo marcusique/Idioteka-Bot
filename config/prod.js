@@ -4,5 +4,6 @@ module.exports = {
   mongoURI: process.env.MONGO_URI,
   redisPort: process.env.REDIS_PORT,
   redisURI: process.env.REDIS_URI,
-  redisPwd: process.env.REDIS_PWD
+  redisPwd: process.env.REDIS_PWD,
+  appLogPath: process.env.APP_LOG_PATH
 };

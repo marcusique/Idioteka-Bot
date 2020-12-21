@@ -7,7 +7,7 @@ const Telegraf = require('telegraf'),
   rateLimit = require('telegraf-ratelimit'),
   limitConfig = {
     window: 3000,
-    limit: 1
+    limit: 1,
   },
   cheerio = require('cheerio'),
   redis = require('./middleware/redis'),
@@ -18,8 +18,9 @@ const Telegraf = require('telegraf'),
 
 bot.use(session());
 bot.use(rateLimit(limitConfig));
+console.log('APP LOG PATH: ' + keys.appLogPath);
 
-bot.action('MORE', ctx => {
+bot.action('MORE', (ctx) => {
   let date = lib.generateDate();
 
   //check redis cache
@@ -33,7 +34,7 @@ bot.action('MORE', ctx => {
           ctx.message.date
         )}, ERROR_MSG: ${err.message} DATE: ${lib.returnDate(
           ctx.update.callback_query.message.date
-        )}`
+        )}`,
       });
 
       return ctx.reply('❌ Произошла ошибка, попробуй еще раз!');
@@ -62,7 +63,7 @@ bot.action('MORE', ctx => {
 
       axios
         .get(requestUrl)
-        .then(html => {
+        .then((html) => {
           let $ = cheerio.load(html.data);
           let img = $('div.everiday-page-content-image > a > img').attr('src');
           let title = $('div.als-text-container > p.before_list').text();
@@ -81,14 +82,14 @@ bot.action('MORE', ctx => {
 
           return done(ctx.chat.id, img, extra);
         })
-        .catch(err => {
+        .catch((err) => {
           errorLogger.log({
             level: 'error',
             message: `CHAT: ${ctx.from.id}, USERNAME: ${
               ctx.from.username
             }, NAME: ${ctx.from.first_name} ${ctx.from.last_name}, ERROR_MSG: ${
               err.message
-            } DATE: ${lib.returnDate(ctx.update.callback_query.message.date)}`
+            } DATE: ${lib.returnDate(ctx.update.callback_query.message.date)}`,
           });
           return ctx.reply('❌ Произошла ошибка, попробуй еще раз!');
         });
@@ -100,11 +101,11 @@ bot.action('MORE', ctx => {
       ctx.from.first_name
     } ${ctx.from.last_name} DATE: ${lib.returnDate(
       ctx.update.callback_query.message.date
-    )}`
+    )}`,
   });
 });
 
-bot.start(ctx => {
+bot.start((ctx) => {
   const extra = Extra.markup(
     Markup.inlineKeyboard([Markup.callbackButton('Начнем! 🚀', 'MORE')])
   );
@@ -124,11 +125,11 @@ bot.start(ctx => {
       ctx.from.first_name
     } ${ctx.from.last_name}, MESSAGE: ${
       ctx.message.text
-    }, DATE: ${lib.returnDate(ctx.message.date)}`
+    }, DATE: ${lib.returnDate(ctx.message.date)}`,
   });
 });
 
-bot.help(ctx => {
+bot.help((ctx) => {
   const extra = Extra.markup(
     Markup.inlineKeyboard([Markup.callbackButton('Начнем! 🚀', 'MORE')])
   );
@@ -154,11 +155,11 @@ bot.help(ctx => {
       ctx.from.first_name
     } ${ctx.from.last_name}, MESSAGE: ${
       ctx.message.text
-    }, DATE: ${lib.returnDate(ctx.message.date)}`
+    }, DATE: ${lib.returnDate(ctx.message.date)}`,
   });
 });
 
-bot.catch(err => {
+bot.catch((err) => {
   console.log(err.message);
   ctx.reply('❌ Произошла ошибка, попробуй еще раз!');
 });

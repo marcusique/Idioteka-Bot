@@ -1,7 +1,5 @@
 const winston = require('winston'),
   keys = require('../config/keys');
-//appRoot = require('app-root-path');
-//require('winston-mongodb');
 
 const infoLogger = winston.createLogger({
   level: 'info',

@@ -18,7 +18,7 @@ const Telegraf = require('telegraf'),
 
 bot.use(session());
 bot.use(rateLimit(limitConfig));
-console.log('APP LOG PATH: ' + keys.appLogPath);
+// console.log('APP LOG PATH: ' + keys.appLogPath);
 
 bot.action('MORE', (ctx) => {
   let date = lib.generateDate();

@@ -10,11 +10,6 @@ const errorLogger = winston.createLogger({
       level: 'info',
       filename: `${appRoot}/logs/info.log`
     })
-    // new winston.transports.MongoDB({
-    //   level: 'error',
-    //   db: keys.mongoURI,
-    //   collection: 'errors'
-    // })
   ]
 });
 

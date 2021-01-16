@@ -28,13 +28,9 @@ bot.action('MORE', (ctx) => {
     if (err) {
       errorLogger.log({
         level: 'error',
-        message: `CHAT: ${ctx.from.id}, USERNAME: ${ctx.from.username}, NAME: ${
-          ctx.from.first_name
-        } ${ctx.from.last_name}, DATE: ${lib.returnDate(
-          ctx.message.date
-        )}, ERROR_MSG: ${err.message} DATE: ${lib.returnDate(
-          ctx.update.callback_query.message.date
-        )}`,
+        message: `CHAT: ${ctx.from.id}, USERNAME: ${ctx.from.username}, NAME: ${ctx.from.first_name} ${ctx.from.last_name}, DATE: ${lib.returnDate(ctx.message.date)}, ERROR_MSG: ${
+          err.message
+        } DATE: ${lib.returnDate(ctx.update.callback_query.message.date)}`,
       });
 
       return ctx.reply('❌ Произошла ошибка, попробуй еще раз!');
@@ -46,10 +42,8 @@ bot.action('MORE', (ctx) => {
       caption = result[2];
       requestUrl = result[3];
 
-      const extra = Extra.markup(
-        Markup.inlineKeyboard([Markup.callbackButton('Еще 🚀', 'MORE')])
-      );
-      extra.caption = `<b>${title}</b>\n\n${caption}\n\n<a href="${requestUrl}">На сайт ↗️</a>`;
+      const extra = Extra.markup(Markup.inlineKeyboard([Markup.callbackButton('Еще 🚀', 'MORE')]));
+      extra.caption = `<b>${title}</b>\n\n${caption}\n\n<a href="${requestUrl}">На сайт</a> ↗️`;
       extra.parse_mode = 'HTML';
 
       return done(ctx.chat.id, img, extra);
@@ -57,9 +51,7 @@ bot.action('MORE', (ctx) => {
     } else {
       let toCache = [];
       let requestUrl = `${keys.URL}${date}`;
-      const extra = Extra.markup(
-        Markup.inlineKeyboard([Markup.callbackButton('Еще! 🚀', 'MORE')])
-      );
+      const extra = Extra.markup(Markup.inlineKeyboard([Markup.callbackButton('Еще! 🚀', 'MORE')]));
 
       axios
         .get(requestUrl)
@@ -67,17 +59,13 @@ bot.action('MORE', (ctx) => {
           let $ = cheerio.load(html.data);
           let img = $('div.everiday-page-content-image > a > img').attr('src');
           let title = $('div.als-text-container > p.before_list').text();
-          let caption = $('div.als-text-container > p')
-            .next()
-            .append('\n')
-            .text()
-            .trim();
+          let caption = $('div.als-text-container > p').next().append('\n').text().trim();
 
           //adding to redis cache
           toCache.push(img, title, caption, requestUrl);
           redis.rpush.apply(redis, [`${date}`].concat(toCache));
 
-          extra.caption = `<b>${title}</b>\n\n${caption}\n\n<a href="${requestUrl}">На сайт ↗️</a>`;
+          extra.caption = `<b>${title}</b>\n\n${caption}\n\n<a href="${requestUrl}">На сайт</a> ↗️`;
           extra.parse_mode = 'HTML';
 
           return done(ctx.chat.id, img, extra);
@@ -85,11 +73,9 @@ bot.action('MORE', (ctx) => {
         .catch((err) => {
           errorLogger.log({
             level: 'error',
-            message: `CHAT: ${ctx.from.id}, USERNAME: ${
-              ctx.from.username
-            }, NAME: ${ctx.from.first_name} ${ctx.from.last_name}, ERROR_MSG: ${
-              err.message
-            } DATE: ${lib.returnDate(ctx.update.callback_query.message.date)}`,
+            message: `CHAT: ${ctx.from.id}, USERNAME: ${ctx.from.username}, NAME: ${ctx.from.first_name} ${ctx.from.last_name}, ERROR_MSG: ${err.message} DATE: ${lib.returnDate(
+              ctx.update.callback_query.message.date
+            )}`,
           });
           return ctx.reply('❌ Произошла ошибка, попробуй еще раз!');
         });
@@ -97,18 +83,14 @@ bot.action('MORE', (ctx) => {
   });
   infoLogger.log({
     level: 'info',
-    message: `CHAT: ${ctx.from.id}, USERNAME: ${ctx.from.username}, NAME: ${
-      ctx.from.first_name
-    } ${ctx.from.last_name} DATE: ${lib.returnDate(
+    message: `CHAT: ${ctx.from.id}, USERNAME: ${ctx.from.username}, NAME: ${ctx.from.first_name} ${ctx.from.last_name} DATE: ${lib.returnDate(
       ctx.update.callback_query.message.date
     )}`,
   });
 });
 
 bot.start((ctx) => {
-  const extra = Extra.markup(
-    Markup.inlineKeyboard([Markup.callbackButton('Начнем! 🚀', 'MORE')])
-  );
+  const extra = Extra.markup(Markup.inlineKeyboard([Markup.callbackButton('Начнем! 🚀', 'MORE')]));
   extra.parse_mode = 'HTML';
   extra.webPreview(false);
 
@@ -121,18 +103,14 @@ bot.start((ctx) => {
 
   infoLogger.log({
     level: 'info',
-    message: `CHAT: ${ctx.from.id}, USERNAME: ${ctx.from.username}, NAME: ${
-      ctx.from.first_name
-    } ${ctx.from.last_name}, MESSAGE: ${
-      ctx.message.text
-    }, DATE: ${lib.returnDate(ctx.message.date)}`,
+    message: `CHAT: ${ctx.from.id}, USERNAME: ${ctx.from.username}, NAME: ${ctx.from.first_name} ${ctx.from.last_name}, MESSAGE: ${ctx.message.text}, DATE: ${lib.returnDate(
+      ctx.message.date
+    )}`,
   });
 });
 
 bot.help((ctx) => {
-  const extra = Extra.markup(
-    Markup.inlineKeyboard([Markup.callbackButton('Начнем! 🚀', 'MORE')])
-  );
+  const extra = Extra.markup(Markup.inlineKeyboard([Markup.callbackButton('Начнем! 🚀', 'MORE')]));
   extra.parse_mode = 'HTML';
   extra.webPreview(false);
 
@@ -143,19 +121,15 @@ bot.help((ctx) => {
 
 Работает в одном режиме – генерации случайной ссылки и получения публикации напрямую с веб-страницы. Скорость получения информации с сайта не зависит от бота и при высоких нагрузках на сайт Идиотеки время получения публикации может увеличиваться.
 
-Бот поддерживает кэширование и все публикации, которые проходят через него, добавляются в кэш. Таким образом, скорость каждой последующей загрузки публикации увеличивается.
-
 ⚠️ Количество запросов ограничено одним в каждые три секунды.
      `,
     extra
   );
   infoLogger.log({
     level: 'info',
-    message: `CHAT: ${ctx.from.id}, USERNAME: ${ctx.from.username}, NAME: ${
-      ctx.from.first_name
-    } ${ctx.from.last_name}, MESSAGE: ${
-      ctx.message.text
-    }, DATE: ${lib.returnDate(ctx.message.date)}`,
+    message: `CHAT: ${ctx.from.id}, USERNAME: ${ctx.from.username}, NAME: ${ctx.from.first_name} ${ctx.from.last_name}, MESSAGE: ${ctx.message.text}, DATE: ${lib.returnDate(
+      ctx.message.date
+    )}`,
   });
 });
 
